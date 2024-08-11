@@ -96,15 +96,25 @@ function aico_api_key_render() {
     echo '<input style="width:50%;" type="text" name="aico_api_key" value="' . esc_attr( $api_key ) . '" />';
 }
 
-// Function to render AI model selection.
+// Function to render AI model selection as radio buttons with descriptions.
 function aico_ai_model_render() {
     $ai_model = get_option( 'aico_ai_model', 'gpt-3.5-turbo' );
     ?>
-    <select name="aico_ai_model">
-        <option value="gpt-3.5-turbo" <?php selected( $ai_model, 'gpt-3.5-turbo' ); ?>>GPT-3.5 Turbo</option>
-        <option value="gpt-4-turbo" <?php selected( $ai_model, 'gpt-4-turbo' ); ?>>GPT-4 Turbo</option>
-        <option value="gpt-4o-mini" <?php selected( $ai_model, 'gpt-4o-mini' ); ?>>GPT-4o Mini</option>
-    </select>
+    <label>
+        <input type="radio" name="aico_ai_model" value="gpt-3.5-turbo" <?php checked( $ai_model, 'gpt-3.5-turbo' ); ?>>
+        GPT-3.5 Turbo<br>
+        <small>Fastest model. Best for most use cases.</small>
+    </label><br><br>
+    <label>
+        <input type="radio" name="aico_ai_model" value="gpt-4-turbo" <?php checked( $ai_model, 'gpt-4-turbo' ); ?>>
+        GPT-4 Turbo<br>
+        <small>More powerful than GPT-3.5 but slower.</small>
+    </label><br><br>
+    <label>
+        <input type="radio" name="aico_ai_model" value="gpt-4o-mini" <?php checked( $ai_model, 'gpt-4o-mini' ); ?>>
+        GPT-4o<br>
+        <small>Newest and most advanced model.</small>
+    </label>
     <?php
 }
 
