@@ -146,6 +146,7 @@ function aico_rate_limit_render() {
 // Function to render settings page.
 function aico_options_page() {
     ?>
+    <div class="wrap">
     <form action="options.php" method="post">
         <h1>AI Content Optimizer</h1>
         <?php
@@ -154,6 +155,7 @@ function aico_options_page() {
         submit_button();
         ?>
     </form>
+    </div>
     <?php
 }
 
