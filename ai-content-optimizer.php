@@ -122,24 +122,26 @@ function aico_ai_model_render() {
     <?php
 }
 
-// Function to render max tokens input field with a reset button.
+// Function to render max tokens input field with a reset button and description.
 function aico_max_tokens_render() {
     $max_tokens = get_option( 'aico_max_tokens', 500 );
     ?>
     <input type="number" name="aico_max_tokens" value="<?php echo esc_attr( $max_tokens ); ?>" min="1" max="4096" />
     <button type="button" class="button-secondary" onclick="document.getElementsByName('aico_max_tokens')[0].value=500;">Reset Usage</button>
+    <p><small>Set the maximum number of tokens the AI model can generate in a single response.<br>Higher values allow for longer and more detailed suggestions, but will consume more of your daily token limit.</small></p>
     <?php
 }
 
 // Function to render rate limit input field with description and current usage.
 function aico_rate_limit_render() {
     $rate_limit = get_option( 'aico_rate_limit', 10000 );
-    $used_tokens = get_option( 'aico_used_tokens', 0 );
+    $used_requests = get_option( 'aico_used_requests', 0 );  // Track the number of API requests made
+
     ?>
     <input type="number" name="aico_rate_limit" value="<?php echo esc_attr( $rate_limit ); ?>" min="1" />
     <button type="button" class="button-secondary" onclick="document.getElementsByName('aico_rate_limit')[0].value=10000;">Reset Usage</button>
-    <p><small>Set a daily token usage limit for the AI Assistant. If you exceed this limit, subsequent requests will be rejected.</small></p>
-    <p><small> <strong> Current usage: </strong><span style="color: #666;"><?php echo esc_html( $used_tokens . ' / ' . $rate_limit ); ?> tokens.</span></small></p>
+    <p><small>Set a daily request limit for the AI Assistant. If you exceed this limit, subsequent requests will be rejected.</small></p>
+    <p><small><strong>Current usage:</strong> <span style="color: #666;"><?php echo esc_html( $used_requests . ' / ' . $rate_limit ); ?> requests.</span></small></p>
     <?php
 }
 
@@ -159,16 +161,31 @@ function aico_options_page() {
     <?php
 }
 
-// Function to get suggestions from OpenAI API.
+// Function to get suggestions from OpenAI API with rate limit and throttling logic.
 function aico_get_openai_suggestions( $content ) { 
+    static $last_request_time = null;  // Track the time of the last API request
+
     $api_key = get_option( 'aico_api_key' );
     $ai_model = get_option( 'aico_ai_model', 'gpt-3.5-turbo' );
     $max_tokens = get_option( 'aico_max_tokens', 500 );
     $rate_limit = get_option( 'aico_rate_limit', 10000 );
+    $used_requests = get_option( 'aico_used_requests', 0 );
 
     if ( ! $api_key ) {
         return 'API key is missing. Please add it in the plugin settings.';
     }
+
+    // Throttle requests if usage exceeds rate limit.
+    if ( $used_requests >= $rate_limit ) {
+        return 'Daily request limit exceeded. Please try again tomorrow.';
+    }
+
+    // Implement Request Throttling
+    $time_between_requests = 60 / $rate_limit; // Calculate delay between requests in seconds
+    if ( $last_request_time && ( microtime(true) - $last_request_time < $time_between_requests ) ) {
+        usleep( ( $time_between_requests - ( microtime(true) - $last_request_time ) ) * 1000000 ); // Convert seconds to microseconds
+    }
+    $last_request_time = microtime(true); // Record the time of this request
 
     $endpoint = 'https://api.openai.com/v1/chat/completions';
 
@@ -182,13 +199,6 @@ function aico_get_openai_suggestions( $content ) {
         'temperature' => 0.7,
     ]);
 
-    // Check if the daily token limit has been exceeded.
-    $used_tokens = get_option( 'aico_used_tokens', 0 );
-
-    if ( $used_tokens + $max_tokens > $rate_limit ) {
-        return 'Daily token limit exceeded. Please try again tomorrow.';
-    }
-
     $response = wp_remote_post( $endpoint, [
         'headers' => [
             'Authorization' => 'Bearer ' . $api_key,
@@ -199,16 +209,33 @@ function aico_get_openai_suggestions( $content ) {
     ]);
 
     if ( is_wp_error( $response ) ) {
-        error_log( 'OpenAI API Request Failed: ' . $response->get_error_message() );
-        return 'Failed to connect to OpenAI API.';
+        $error_code = $response->get_error_code();
+        
+        // Error Handling for Rate Limits
+        if ( $error_code === 'rate_limit_exceeded' ) {
+            sleep(10); // Implement back-off strategy, such as a delay before retrying
+            $response = wp_remote_post( $endpoint, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $api_key,
+                    'Content-Type'  => 'application/json',
+                ],
+                'body' => $body,
+                'timeout' => 15,
+            ]);
+        }
+
+        if ( is_wp_error( $response ) ) {
+            error_log( 'OpenAI API Request Failed: ' . $response->get_error_message() );
+            return 'Failed to connect to OpenAI API.';
+        }
     }
 
     $body = wp_remote_retrieve_body( $response );
     error_log( 'OpenAI API Response: ' . $body );
     $result = json_decode( $body, true );
 
-    // Track the used tokens for rate limiting.
-    update_option( 'aico_used_tokens', $used_tokens + $max_tokens );
+    // Update request usage after a successful request.
+    update_option( 'aico_used_requests', $used_requests + 1 );
 
     return $result['choices'][0]['message']['content'] ?? 'No suggestions available.';
 }
