@@ -1,5 +1,4 @@
 <?php
-
 /*
 * Plugin Name: AI Content Optimizer
 * Description: Uses AI to analyze content and provide recommendations for improving SEO, readability, and engagement.
@@ -47,6 +46,9 @@ function aico_add_admin_menu() {
 // Function to initialize settings.
 function aico_settings_init() {
     register_setting( 'aico_options', 'aico_api_key' );
+    register_setting( 'aico_options', 'aico_ai_model' );
+    register_setting( 'aico_options', 'aico_max_tokens' );
+    register_setting( 'aico_options', 'aico_rate_limit' );
 
     add_settings_section(
         'aico_section_developers',
@@ -62,12 +64,60 @@ function aico_settings_init() {
         'aico_options',
         'aico_section_developers'
     );
+
+    add_settings_field(
+        'aico_ai_model',
+        __( 'AI Model', 'wordpress' ),
+        'aico_ai_model_render',
+        'aico_options',
+        'aico_section_developers'
+    );
+
+    add_settings_field(
+        'aico_max_tokens',
+        __( 'Max Tokens', 'wordpress' ),
+        'aico_max_tokens_render',
+        'aico_options',
+        'aico_section_developers'
+    );
+
+    add_settings_field(
+        'aico_rate_limit',
+        __( 'Daily Token Limit', 'wordpress' ),
+        'aico_rate_limit_render',
+        'aico_options',
+        'aico_section_developers'
+    );
 }
 
 // Function to render API key field.
 function aico_api_key_render() {
     $api_key = get_option( 'aico_api_key' );
     echo '<input style="width:50%;" type="text" name="aico_api_key" value="' . esc_attr( $api_key ) . '" />';
+}
+
+// Function to render AI model selection.
+function aico_ai_model_render() {
+    $ai_model = get_option( 'aico_ai_model', 'gpt-3.5-turbo' );
+    ?>
+    <select name="aico_ai_model">
+        <option value="gpt-3.5-turbo" <?php selected( $ai_model, 'gpt-3.5-turbo' ); ?>>GPT-3.5 Turbo</option>
+        <option value="gpt-4-turbo" <?php selected( $ai_model, 'gpt-4-turbo' ); ?>>GPT-4 Turbo</option>
+        <option value="gpt-4o-mini" <?php selected( $ai_model, 'gpt-4o-mini' ); ?>>GPT-4o Mini</option>
+    </select>
+    <?php
+}
+
+// Function to render max tokens input field.
+function aico_max_tokens_render() {
+    $max_tokens = get_option( 'aico_max_tokens', 500 );
+    echo '<input type="number" name="aico_max_tokens" value="' . esc_attr( $max_tokens ) . '" min="1" max="4096" />';
+}
+
+// Function to render rate limit input field.
+function aico_rate_limit_render() {
+    $rate_limit = get_option( 'aico_rate_limit', 10000 );
+    echo '<input type="number" name="aico_rate_limit" value="' . esc_attr( $rate_limit ) . '" min="1" />';
 }
 
 // Function to render settings page.
@@ -84,10 +134,13 @@ function aico_options_page() {
     <?php
 }
 
-
 // Function to get suggestions from OpenAI API.
 function aico_get_openai_suggestions( $content ) { 
     $api_key = get_option( 'aico_api_key' );
+    $ai_model = get_option( 'aico_ai_model', 'gpt-3.5-turbo' );
+    $max_tokens = get_option( 'aico_max_tokens', 500 );
+    $rate_limit = get_option( 'aico_rate_limit', 10000 );
+
     if ( ! $api_key ) {
         return 'API key is missing. Please add it in the plugin settings.';
     }
@@ -95,14 +148,21 @@ function aico_get_openai_suggestions( $content ) {
     $endpoint = 'https://api.openai.com/v1/chat/completions';
 
     $body = json_encode([
-        'model' => 'gpt-4o-mini',
+        'model' => $ai_model,
         'messages' => [
             ['role' => 'system', 'content' => 'You are an SEO and content optimization expert.'],
             ['role' => 'user', 'content' => 'Analyze the following content and provide recommendations for SEO, readability, and engagement: ' . $content],
         ],
-        'max_tokens' => 500, // Maximum number of tokens to generate.
-        'temperature' => 0.7, // Controls randomness. Lower values are more deterministic.
+        'max_tokens' => $max_tokens,
+        'temperature' => 0.7,
     ]);
+
+    // Example of how you might track and enforce rate limits.
+    $used_tokens = get_option( 'aico_used_tokens', 0 );
+
+    if ( $used_tokens + $max_tokens > $rate_limit ) {
+        return 'Daily token limit exceeded. Please try again tomorrow.';
+    }
 
     $response = wp_remote_post( $endpoint, [
         'headers' => [
@@ -121,6 +181,9 @@ function aico_get_openai_suggestions( $content ) {
     $body = wp_remote_retrieve_body( $response );
     error_log( 'OpenAI API Response: ' . $body );
     $result = json_decode( $body, true );
+
+    // Track the used tokens for rate limiting.
+    update_option( 'aico_used_tokens', $used_tokens + $max_tokens );
 
     return $result['choices'][0]['message']['content'] ?? 'No suggestions available.';
 }
@@ -142,5 +205,27 @@ function aico_display_meta_box( $post ) {
     $content = $post->post_content;
     $suggestions = aico_get_openai_suggestions( $content );
     echo '<p><strong>AI Suggestions:</strong></p>';
-    echo '<p>' . esc_html( $suggestions ) . '</p>';
+    echo '<div style="padding: 10px; background-color: #f9f9f9; border: 1px solid #ddd;">';
+    echo wp_kses_post( nl2br( $suggestions ) );
+    echo '</div>';
 }
+
+// Add a confirmation message after saving the API key.
+function aico_admin_notices() {
+    if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] ) {
+        // Check the API key immediately after saving settings.
+        $api_key = get_option( 'aico_api_key' );
+        $response = wp_remote_get( 'https://api.openai.com/v1/models', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $api_key,
+            ],
+        ]);
+
+        if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
+            echo '<div class="notice notice-error is-dismissible"><p>There was an issue connecting to the OpenAI API. Please check your API key.</p></div>';
+        } else {
+            echo '<div class="notice notice-success is-dismissible"><p>API key verified and connected successfully.</p></div>';
+        }
+    }
+}
+add_action( 'admin_notices', 'aico_admin_notices' );
