@@ -29,9 +29,68 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// Add settings page to WordPress admin.
+add_action( 'admin_menu', 'aico_add_admin_menu' );
+add_action( 'admin_init', 'aico_settings_init' );
+
+// Function to add settings page to WordPress admin.
+function aico_add_admin_menu() {
+    add_options_page(
+        'AI Content Optimizer',
+        'AI Content Optimizer',
+        'manage_options',
+        'ai-content-optimizer',
+        'aico_options_page'
+    );
+}
+
+// Function to initialize settings.
+function aico_settings_init() {
+    register_setting( 'aico_options', 'aico_api_key' );
+
+    add_settings_section(
+        'aico_section_developers',
+        __( 'OpenAI API Settings', 'wordpress' ),
+        null,
+        'aico_options'
+    );
+
+    add_settings_field(
+        'aico_api_key',
+        __( 'OpenAI API Key', 'wordpress' ),
+        'aico_api_key_render',
+        'aico_options',
+        'aico_section_developers'
+    );
+}
+
+// Function to render API key field.
+function aico_api_key_render() {
+    $api_key = get_option( 'aico_api_key' );
+    echo '<input style="width:50%;" type="text" name="aico_api_key" value="' . esc_attr( $api_key ) . '" />';
+}
+
+// Function to render settings page.
+function aico_options_page() {
+    ?>
+    <form action="options.php" method="post">
+        <h1>AI Content Optimizer</h1>
+        <?php
+        settings_fields( 'aico_options' );
+        do_settings_sections( 'aico_options' );
+        submit_button();
+        ?>
+    </form>
+    <?php
+}
+
+
 // Function to get suggestions from OpenAI API.
 function aico_get_openai_suggestions( $content ) { 
-    $api_key = '';
+    $api_key = get_option( 'aico_api_key' );
+    if ( ! $api_key ) {
+        return 'API key is missing. Please add it in the plugin settings.';
+    }
 
     $endpoint = 'https://api.openai.com/v1/chat/completions';
 
@@ -41,8 +100,8 @@ function aico_get_openai_suggestions( $content ) {
             ['role' => 'system', 'content' => 'You are an SEO and content optimization expert.'],
             ['role' => 'user', 'content' => 'Analyze the following content and provide recommendations for SEO, readability, and engagement: ' . $content],
         ],
-        'max_tokens' => 500, 
-        'temperature' => 0.7,
+        'max_tokens' => 500, // Maximum number of tokens to generate.
+        'temperature' => 0.7, // Controls randomness. Lower values are more deterministic.
     ]);
 
     $response = wp_remote_post( $endpoint, [
