@@ -83,17 +83,21 @@ function aico_settings_init() {
 
     add_settings_field(
         'aico_rate_limit',
-        __( 'Daily Token Limit', 'wordpress' ),
+        __( 'Rate Limit', 'wordpress' ),
         'aico_rate_limit_render',
         'aico_options',
         'aico_section_developers'
     );
 }
 
-// Function to render API key field.
+// Function to render API key field with dots placeholder after saving.
 function aico_api_key_render() {
     $api_key = get_option( 'aico_api_key' );
-    echo '<input style="width:50%;" type="text" name="aico_api_key" value="' . esc_attr( $api_key ) . '" />';
+    $masked_key = $api_key ? str_repeat('*', 30) : '';
+    ?>
+    <input style="width:300px;" type="password" name="aico_api_key" value="<?php echo esc_attr( $masked_key ); ?>" />
+    <p><small>Your OpenAI API key is stored securely. Enter a new key to update it.</small></p>
+    <?php
 }
 
 // Function to render AI model selection as radio buttons with descriptions.
@@ -118,16 +122,25 @@ function aico_ai_model_render() {
     <?php
 }
 
-// Function to render max tokens input field.
+// Function to render max tokens input field with a reset button.
 function aico_max_tokens_render() {
     $max_tokens = get_option( 'aico_max_tokens', 500 );
-    echo '<input type="number" name="aico_max_tokens" value="' . esc_attr( $max_tokens ) . '" min="1" max="4096" />';
+    ?>
+    <input type="number" name="aico_max_tokens" value="<?php echo esc_attr( $max_tokens ); ?>" min="1" max="4096" />
+    <button type="button" class="button-secondary" onclick="document.getElementsByName('aico_max_tokens')[0].value=500;">Reset Usage</button>
+    <?php
 }
 
-// Function to render rate limit input field.
+// Function to render rate limit input field with description and current usage.
 function aico_rate_limit_render() {
     $rate_limit = get_option( 'aico_rate_limit', 10000 );
-    echo '<input type="number" name="aico_rate_limit" value="' . esc_attr( $rate_limit ) . '" min="1" />';
+    $used_tokens = get_option( 'aico_used_tokens', 0 );
+    ?>
+    <input type="number" name="aico_rate_limit" value="<?php echo esc_attr( $rate_limit ); ?>" min="1" />
+    <button type="button" class="button-secondary" onclick="document.getElementsByName('aico_rate_limit')[0].value=10000;">Reset Usage</button>
+    <p><small>Set a daily token usage limit for the AI Assistant. If you exceed this limit, subsequent requests will be rejected.</small></p>
+    <p><small> <strong> Current usage: </strong><span style="color: #666;"><?php echo esc_html( $used_tokens . ' / ' . $rate_limit ); ?> tokens.</span></small></p>
+    <?php
 }
 
 // Function to render settings page.
@@ -167,7 +180,7 @@ function aico_get_openai_suggestions( $content ) {
         'temperature' => 0.7,
     ]);
 
-    // Example of how you might track and enforce rate limits.
+    // Check if the daily token limit has been exceeded.
     $used_tokens = get_option( 'aico_used_tokens', 0 );
 
     if ( $used_tokens + $max_tokens > $rate_limit ) {
