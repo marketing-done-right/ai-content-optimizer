@@ -58,6 +58,39 @@ This error indicates that you currently don’t have access to the latest GPT-4 
 
 This error indicates you have either run out of credits or have hit your monthly quota. For more information, read the [OpenAI API error documentation](https://platform.openai.com/docs/guides/error-codes/api-errors).
 
+## Frequently Asked Questions
+
+**Q: What is the AI Content Optimizer plugin?**
+**A:** The AI Content Optimizer plugin uses AI (powered by OpenAI) to analyze your content and provide recommendations for improving SEO, readability, and engagement. It offers suggestions on keyword optimization, meta tags, readability enhancements, and engagement strategies tailored to your content.
+
+**Q: How do I get an OpenAI API key?**
+**A:** To use the AI Content Optimizer, you need an OpenAI API key. You can obtain this key by creating an account on the OpenAI platform and navigating to the API section to generate a new key. After generating your key, enter it in the plugin settings under "OpenAI API Key".
+
+**Q: What AI models are supported by the plugin?**
+**A:** The plugin supports multiple AI models, including GPT-3.5 Turbo, GPT-4 Turbo, and GPT-4o. You can choose the model that best fits your needs from the plugin settings. GPT-3.5 Turbo is faster and suitable for most use cases, while GPT-4o models are more powerful and it's the newest and most advanced model.
+
+**Q: What are "tokens," and how do I set the maximum tokens in the plugin?**
+**A:** Tokens are the basic units that the AI model uses to process and generate text. Setting a maximum token limit determines how much text the AI can generate in response to your content analysis. You can set this limit in the plugin settings, balancing between detailed suggestions and resource consumption.
+
+**Q: How does the rate limit work, and how can I manage it**
+**A:** The rate limit controls how many requests the plugin can make to the OpenAI API each day. If you exceed this limit, further requests will be rejected until the next day. You can adjust the rate limit in the plugin settings to fit your usage needs, and the current usage is displayed to help you monitor it.
+
+**Q: How can I avoid sending unnecessary API requests?**
+**A:** The AI Content Optimizer plugin includes a button in the WordPress editor labeled `Analyze Content with AI.` The plugin only sends an API request when this button is clicked, ensuring that you only use your tokens and rate limits when needed.
+
+**Q: Can I customize the prompt sent to the AI for content analysis?**
+**A:** Currently, the AI Content Optimizer plugin does not allow customization of the prompt. The plugin uses a predefined prompt designed to provide comprehensive SEO, readability, and engagement suggestions based on the content you provide. Future versions of the plugin may include this feature based on user feedback.
+
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
+
+1. Fork the Project
+2. Create your Feature Branch (git checkout -b feature/AmazingFeature)
+3. Commit your Changes (git commit -m 'Add some AmazingFeature')
+4. Push to the Branch (git push origin feature/AmazingFeature)
+5. Open a Pull Request
+
 ## Changelog
 ### Version 1.0.0:
 - Initial release with AI-powered content analysis, SEO recommendations, readability enhancements, and engagement strategies.
