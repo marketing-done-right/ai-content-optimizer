@@ -31,13 +31,14 @@ In a digital landscape where content quality directly impacts SEO rankings and u
 - Copy the secret key after it has been created.
 - Go to Settings > __AI Content Optimizer__ in the WordPress Admin Area.
 - Paste the secret key in the __"OpenAI API Key"__ field.
+  
 Congratulations! You should now be able to use the AI Content Optimizer Plugin when working in the WordPress editor for posts or pages.
 
 ## Settings
-**OpenAI API Key:** Enter your OpenAI API key to enable AI-powered content analysis.
-**AI Model:** Choose between GPT-3.5 Turbo, GPT-4 Turbo, or GPT-4o based on your needs.
-**Max Tokens:** Set the maximum number of tokens the AI model can generate in a single response.
-**Rate Limit:** Configure daily limits on API requests to manage costs and avoid exceeding your quota.
+- **OpenAI API Key:** Enter your OpenAI API key to enable AI-powered content analysis.
+- **AI Model:** Choose between GPT-3.5 Turbo, GPT-4 Turbo, or GPT-4o based on your needs.
+- **Max Tokens:** Set the maximum number of tokens the AI model can generate in a single response.
+- **Rate Limit:** Configure daily limits on API requests to manage costs and avoid exceeding your quota.
 
 ## Usage
 - Open a post or page in the WordPress editor.
@@ -48,11 +49,13 @@ Congratulations! You should now be able to use the AI Content Optimizer Plugin w
 
 ## Common Errors
 > [!CAUTION]
-> The model gpt-4-turbo-preview does not exist, and you do not have access to it.
-This error indicates that you currently don’t have access to the latest GPT-4 models. To access these models, please refer to the OpenAI help article. Additionally, these models require that you’ve spent $5 or more. Otherwise, you will be in the free tier, where only GPT-3.5 is available.
+> _The model gpt-4-turbo-preview does not exist, and you do not have access to it._
 
-> [!WARNING]
-> You exceeded your current quota, please check your plan and billing details.
+This error indicates that you currently don’t have access to the latest GPT-4 models. To access these models, please refer to this [OpenAI help article](https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4-gpt-4-turbo-and-gpt-4o). Additionally, these models require that you’ve spent $5 or more. Otherwise, you will be in the free tier, where only GPT-3.5 is available.
+
+> [!CAUTION]
+> _You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: [https://platform.openai.com/docs/guides/error-codes/api-errors](https://platform.openai.com/docs/guides/error-codes/api-errors)_
+
 This error indicates you have either run out of credits or have hit your monthly quota. For more information, see the OpenAI API error documentation.
 
 ## Changelog
