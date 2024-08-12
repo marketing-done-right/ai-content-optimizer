@@ -1,4 +1,4 @@
-# AI-Powered Content Optimizer Plugin
+# AI-Powered Content Optimizer
 
 ### Authors: 
 - [Hans Steffens](https://hanscode.io/)
