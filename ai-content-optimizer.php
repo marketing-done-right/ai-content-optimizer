@@ -124,10 +124,10 @@ function aico_ai_model_render() {
 
 // Function to render max tokens input field with a reset button and description.
 function aico_max_tokens_render() {
-    $max_tokens = get_option( 'aico_max_tokens', 500 );
+    $max_tokens = get_option( 'aico_max_tokens', 700 );
     ?>
     <input type="number" name="aico_max_tokens" value="<?php echo esc_attr( $max_tokens ); ?>" min="1" max="4096" />
-    <button type="button" class="button-secondary" onclick="document.getElementsByName('aico_max_tokens')[0].value=500;">Reset Usage</button>
+    <button type="button" class="button-secondary" onclick="document.getElementsByName('aico_max_tokens')[0].value=700;">Reset Usage</button>
     <p><small>Set the maximum number of tokens the AI model can generate in a single response.<br>Higher values allow for longer and more detailed suggestions, but will consume more of your daily token limit.</small></p>
     <?php
 }
@@ -167,7 +167,7 @@ function aico_get_openai_suggestions( $content ) {
 
     $api_key = get_option( 'aico_api_key' );
     $ai_model = get_option( 'aico_ai_model', 'gpt-3.5-turbo' );
-    $max_tokens = get_option( 'aico_max_tokens', 500 );
+    $max_tokens = (int) get_option( 'aico_max_tokens', 700 );
     $rate_limit = get_option( 'aico_rate_limit', 10000 );
     $used_requests = get_option( 'aico_used_requests', 0 );
 
@@ -192,8 +192,31 @@ function aico_get_openai_suggestions( $content ) {
     $body = json_encode([
         'model' => $ai_model,
         'messages' => [
-            ['role' => 'system', 'content' => 'You are an SEO and content optimization expert.'],
-            ['role' => 'user', 'content' => 'Analyze the following content and provide recommendations for SEO, readability, and engagement: ' . $content],
+            ['role' => 'system', 'content' => 'You are an expert in SEO, readability analysis, and content engagement strategies. Your task is to provide detailed and actionable recommendations for optimizing web content. You are skilled in analyzing keyword density, readability scores, and content engagement techniques.'],
+            ['role' => 'user', 'content' => 'Please analyze the following content and provide comprehensive suggestions in the following areas:
+
+            1. **Keyword Optimization**: Identify relevant keywords and phrases. Analyze their density within the content and suggest adjustments if necessary. Provide a suggested meta title and meta description.
+            
+            2. **Keyword Density Analysis**: Calculate the keyword density for the identified keywords and provide recommendations on whether the density should be increased or decreased. Indicate the current density percentage and provide an ideal target range.
+
+            3. **Readability Score**: Evaluate the content’s readability using established readability scores (e.g., Flesch-Kincaid). Provide the current readability score and suggest specific improvements tailored to the content’s complexity. Recommendations should be aligned with the target audience’s reading level.
+
+            4. **Readability Enhancements**: Based on the readability score and content analysis, suggest specific improvements for sentence structure, paragraph length, word choice, and overall clarity. Provide actionable steps to simplify complex sections or enhance the flow of the content.
+
+            5. **Engagement Strategies**: Suggest strategies to enhance reader engagement, such as incorporating calls to action, internal linking, multimedia elements (e.g., images, videos), and interactive content. Provide specific examples of where these elements could be effectively integrated into the content.
+
+            Use the following format for your response:
+            
+            *SEO Recommendations:*
+            **Keywords**: ["keyword1", "keyword2", "keyword3"]
+            **Keyword Density Analysis**: ["keyword1": "current_density%", "keyword2": "current_density%", ...] **Ideal Density Range**: "X% - Y%"
+            **Meta Title**: "Suggested Meta Title"
+            **Meta Description**: "Suggested Meta Description"
+            **Readability Score**: "Score (e.g., Flesch-Kincaid 65)"
+            **Readability Enhancements**: [Detailed suggestions for improving readability]
+            **Engagement Strategies**: [Specific strategies for increasing reader engagement]
+
+            Content to analyze: ' . $content],
         ],
         'max_tokens' => $max_tokens,
         'temperature' => 0.7,
