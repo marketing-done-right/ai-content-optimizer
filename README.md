@@ -54,9 +54,9 @@ Congratulations! You should now be able to use the AI Content Optimizer Plugin w
 This error indicates that you currently don’t have access to the latest GPT-4 models. To access these models, please refer to this [OpenAI help article](https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4-gpt-4-turbo-and-gpt-4o). Additionally, these models require that you’ve spent $5 or more. Otherwise, you will be in the free tier, where only GPT-3.5 is available.
 
 > [!CAUTION]
-> _You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: [https://platform.openai.com/docs/guides/error-codes/api-errors](https://platform.openai.com/docs/guides/error-codes/api-errors)_
+> _You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors_
 
-This error indicates you have either run out of credits or have hit your monthly quota. For more information, see the OpenAI API error documentation.
+This error indicates you have either run out of credits or have hit your monthly quota. For more information, read the [OpenAI API error documentation](https://platform.openai.com/docs/guides/error-codes/api-errors).
 
 ## Changelog
 ### Version 1.0.0:

@@ -260,6 +260,21 @@ function aico_get_openai_suggestions( $content ) {
     error_log( 'OpenAI API Response: ' . $body );
     $result = json_decode( $body, true );
 
+    if ( isset( $result['error'] ) ) {
+        $error_message = $result['error']['message'];
+        $error_code = $result['error']['code'];
+
+        if ( $error_code === 'invalid_request_error' && strpos($error_message, 'The model') !== false ) {
+            return 'The model ' . $ai_model . ' does not exist, or you do not have access to it.';
+        }
+
+        if ( $error_code === 'insufficient_quota' ) {
+            return $error_message; // Return the full error message provided by OpenAI
+        }
+
+        return 'OpenAI API Error: ' . $error_message;
+    }
+
     // Update request usage after a successful request.
     update_option( 'aico_used_requests', $used_requests + 1 );
 
