@@ -95,7 +95,7 @@ function aico_api_key_render() {
     $api_key = get_option( 'aico_api_key' );
     $masked_key = $api_key ? str_repeat('*', 30) : '';
     ?>
-    <input style="width:300px;" type="password" name="aico_api_key" value="<?php echo esc_attr( $masked_key ); ?>" />
+    <input style="width:300px;" type="password" name="aico_api_key" value="<?php echo esc_attr( $api_key ); ?>" />
     <p><small>Your OpenAI API key is stored securely. Enter a new key to update it.</small></p>
     <?php
 }
@@ -195,6 +195,8 @@ function aico_get_openai_suggestions( $content ) {
             ['role' => 'system', 'content' => 'You are an expert in SEO, readability analysis, and content engagement strategies. Your task is to provide detailed and actionable recommendations for optimizing web content. You are skilled in analyzing keyword density, readability scores, and content engagement techniques.'],
             ['role' => 'user', 'content' => 'Please analyze the following content and provide comprehensive suggestions in the following areas:
 
+            0. **SEO-friendly URL**: Evaluate the URL structure and suggest an SEO-friendly URL based on the content. Consider incorporating relevant keywords and maintaining a concise and descriptive format.
+
             1. **Keyword Optimization**: Identify relevant keywords and phrases. Analyze their density within the content and suggest adjustments if necessary. Provide a suggested meta title and meta description.
             
             2. **Keyword Density Analysis**: Calculate the keyword density for the identified keywords and provide recommendations on whether the density should be increased or decreased. Indicate the current density percentage and provide an ideal target range.
@@ -208,6 +210,7 @@ function aico_get_openai_suggestions( $content ) {
             Use the following format for your response:
             
             *SEO Recommendations:*
+            **SEO-friendly URL**: "Suggested URL"
             **Keywords**: ["keyword1", "keyword2", "keyword3"]
             **Keyword Density Analysis**: ["keyword1": "current_density%", "keyword2": "current_density%", ...] **Ideal Density Range**: "X% - Y%"
             **Meta Title**: "Suggested Meta Title"
@@ -371,19 +374,32 @@ function aico_display_meta_box( $post ) {
 
 // Add a confirmation message after saving the API key.
 function aico_admin_notices() {
+    // Check if the settings have been updated
     if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] ) {
-        // Check the API key immediately after saving settings.
+        // Retrieve the new API key value and the old key value for comparison
         $api_key = get_option( 'aico_api_key' );
-        $response = wp_remote_get( 'https://api.openai.com/v1/models', [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $api_key,
-            ],
-        ]);
+        $new_api_key = $api_key;
+        $old_api_key = get_option( '_old_aico_api_key' ); // Store the old key temporarily
 
-        if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
-            echo '<div class="notice notice-error is-dismissible"><p>There was an issue connecting to the OpenAI API. Please check your API key.</p></div>';
-        } else {
-            echo '<div class="notice notice-success is-dismissible"><p>API key verified and connected successfully.</p></div>';
+        // If the API key is empty, show a warning notice
+        if ( empty( $new_api_key ) ) {
+            echo '<div class="notice notice-warning is-dismissible"><p>You have not provided an API key. Please enter your OpenAI API key to use the plugin.</p></div>';
+        } 
+        // If the API key was updated, proceed with verification
+        else if ( $new_api_key !== $old_api_key ) {
+            $response = wp_remote_get( 'https://api.openai.com/v1/models', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $new_api_key,
+                ],
+            ]);
+
+            if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
+                echo '<div class="notice notice-error is-dismissible"><p>There was an issue connecting to the OpenAI API. Please check your API key.</p></div>';
+            } else {
+                echo '<div class="notice notice-success is-dismissible"><p>API key verified and connected successfully.</p></div>';
+            }
+            // Update the stored old API key to the new one after verification
+            update_option( '_old_aico_api_key', $new_api_key );
         }
     }
 }
