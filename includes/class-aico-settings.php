@@ -6,10 +6,31 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+/**
+ * Class AICO_Settings
+ *
+ * Manages the settings page and options for the AI Content Optimizer plugin.
+ *
+ * This class follows the Singleton pattern to ensure that only one instance of the class exists.
+ *
+ * @package MarketingDoneRight\AIContentOptimizer
+ */
 class AICO_Settings {
     
+    /**
+     * The single instance of the AICO_Settings class.
+     *
+     * @var AICO_Settings|null
+     */
     private static $instance;
 
+    /**
+     * Retrieves the single instance of the AICO_Settings class.
+     *
+     * This method implements the Singleton pattern, ensuring that only one instance of this class exists.
+     *
+     * @return AICO_Settings The single instance of this class.
+     */
     public static function get_instance() {
         if ( null === self::$instance ) {
             self::$instance = new self();
@@ -17,11 +38,22 @@ class AICO_Settings {
         return self::$instance;
     }
 
+    /**
+     * AICO_Settings constructor.
+     *
+     * The constructor is private to enforce the Singleton pattern. It sets up actions to add the settings page
+     * and initialize the settings fields.
+     */
     private function __construct() {
         add_action( 'admin_menu', [ $this, 'add_admin_menu' ] );
         add_action( 'admin_init', [ $this, 'settings_init' ] );
     }
 
+    /**
+     * Adds the AI Content Optimizer settings page to the WordPress admin menu.
+     *
+     * This method hooks into WordPress to add the settings page under the "Settings" menu.
+     */
     public function add_admin_menu() {
         add_options_page(
             'AI Content Optimizer',
@@ -32,6 +64,11 @@ class AICO_Settings {
         );
     }
 
+    /**
+     * Initializes the settings for the plugin.
+     *
+     * Registers settings and adds the necessary sections and fields to the settings page.
+     */
     public function settings_init() {
         register_setting( 'aico_options', 'aico_api_key' );
         register_setting( 'aico_options', 'aico_ai_model' );
@@ -78,12 +115,22 @@ class AICO_Settings {
         );
     }
 
+    /**
+     * Renders the OpenAI API key field.
+     *
+     * Displays a password input field for the API key, with a placeholder indicating that the key is stored securely.
+     */
     public function api_key_render() {
         $api_key = get_option( 'aico_api_key' );
         echo '<input style="width:300px;" type="password" name="aico_api_key" value="' . esc_attr( $api_key ) . '" />';
         echo '<p><small>Your OpenAI API key is stored securely. Enter a new key to update it.</small></p>';
     }
 
+    /**
+     * Renders the AI model selection field.
+     *
+     * Displays radio buttons allowing the user to select the AI model to be used by the plugin.
+     */
     public function ai_model_render() {
         $ai_model = get_option( 'aico_ai_model', 'gpt-3.5-turbo' );
         ?>
@@ -105,6 +152,11 @@ class AICO_Settings {
         <?php
     }
 
+    /**
+     * Renders the max tokens field.
+     *
+     * Displays a number input field allowing the user to set the maximum number of tokens the AI model can generate in a single response.
+     */
     public function max_tokens_render() {
         $max_tokens = get_option( 'aico_max_tokens', 700 );
         echo '<input type="number" name="aico_max_tokens" value="' . esc_attr( $max_tokens ) . '" min="1" max="4096" />';
@@ -112,6 +164,12 @@ class AICO_Settings {
         echo '<p><small>Set the maximum number of tokens the AI model can generate in a single response.<br>Higher values allow for longer and more detailed suggestions, but will consume more of your daily token limit.</small></p>';
     }
 
+    /**
+     * Renders the rate limit field.
+     *
+     * Displays a number input field allowing the user to set a daily request limit for the AI Assistant.
+     * If the limit is exceeded, subsequent requests will be rejected.
+     */
     public function rate_limit_render() {
         $rate_limit = get_option( 'aico_rate_limit', 10000 );
         $used_requests = get_option( 'aico_used_requests', 0 );
@@ -121,6 +179,11 @@ class AICO_Settings {
         echo '<p><small><strong>Current usage:</strong> <span style="color: #666;">' . esc_html( $used_requests . ' / ' . $rate_limit ) . ' requests.</span></small></p>';
     }
 
+    /**
+     * Renders the settings page.
+     *
+     * This method generates the HTML for the settings page, displaying the various settings fields and the save button.
+     */
     public function options_page() {
         ?>
         <div class="wrap">

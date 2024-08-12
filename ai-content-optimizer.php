@@ -28,14 +28,31 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// Define plugin path constants
+/**
+ * Defines the path to the plugin directory.
+ *
+ * This constant is used throughout the plugin to reference the plugin's root directory.
+ */
 define( 'AICO_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
+
+/**
+ * Defines the URL to the plugin directory.
+ *
+ * This constant is used to reference the URL to the plugin's assets.
+ */
 define( 'AICO_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
-// Include main class
+// Include the main class responsible for initializing the plugin.
 require_once AICO_PLUGIN_PATH . 'includes/class-aico-main.php';
 
-// Initialize the plugin
+/**
+ * Initializes the AI Content Optimizer plugin.
+ *
+ * This function is hooked to the 'plugins_loaded' action and initializes the main plugin class,
+ * ensuring that the plugin's functionality is ready after all plugins have been loaded.
+ *
+ * @return void
+ */
 function aico_init() {
     \MarketingDoneRight\AIContentOptimizer\AICO_Main::get_instance();
 }

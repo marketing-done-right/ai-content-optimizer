@@ -6,10 +6,31 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+/**
+ * Class AICO_API
+ *
+ * Handles communication with the OpenAI API for generating content suggestions.
+ *
+ * This class follows the Singleton pattern to ensure that only one instance of the class exists.
+ *
+ * @package MarketingDoneRight\AIContentOptimizer
+ */
 class AICO_API {
 
+    /**
+     * The single instance of the AICO_API class.
+     *
+     * @var AICO_API|null
+     */
     private static $instance;
 
+    /**
+     * Retrieves the single instance of the AICO_API class.
+     *
+     * This method implements the Singleton pattern, ensuring that only one instance of this class exists.
+     *
+     * @return AICO_API The single instance of this class.
+     */
     public static function get_instance() {
         if ( null === self::$instance ) {
             self::$instance = new self();
@@ -17,10 +38,25 @@ class AICO_API {
         return self::$instance;
     }
 
+    /**
+     * AICO_API constructor.
+     *
+     * The constructor is private to enforce the Singleton pattern. It serves as a placeholder for any future
+     * initialization code that might be necessary.
+     */
     private function __construct() {
         // Initialization code here if needed, this is set as placeholder for any future initialization code that might be necessary.
     }
 
+    /**
+     * Sends content to the OpenAI API for analysis and retrieves optimization suggestions.
+     *
+     * This method handles communication with the OpenAI API, including rate limiting and request throttling.
+     * It sends content to the API and retrieves suggestions related to SEO, keyword density, readability, and engagement strategies.
+     *
+     * @param string $content The content to be analyzed by the AI.
+     * @return string The suggestions provided by the AI, or an error message if the request fails.
+     */
     public function get_suggestions( $content ) {
         static $last_request_time = null;
 
