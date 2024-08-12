@@ -55,14 +55,17 @@ class AICO_Metabox {
      * This method hooks into WordPress to add the meta box to the post editor screen.
      */
     public function add_meta_box() {
-        add_meta_box(
-            'aico-content-analysis',
-            'AI-Powered Content Analysis',
-            [ $this, 'display_meta_box' ],
-            'post',
-            'normal',
-            'high'
-        );
+        $post_types = ['post', 'page'];
+        foreach ( $post_types as $post_type ) {
+            add_meta_box(
+                'aico-content-analysis',
+                'AI-Powered Content Analysis',
+                [ $this, 'display_meta_box' ],
+                $post_type, // Register meta box for each post type
+                'normal',
+                'high'
+            );
+        }
     }
 
     /**
@@ -87,13 +90,21 @@ class AICO_Metabox {
             }
             ?>
         </div>
-        <button style="margin-top:20px;" type="button" id="aico-analyze-button" class="button button-primary">Analyze Content with AI</button>
+        <button style="margin-top:20px; display:flex; justify-content:center; align-items:center;" type="button" id="aico-analyze-button" class="button button-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" style="margin-right: 5px;">
+                <path fill="currentColor" d="M19.92.897a.447.447 0 0 0-.89-.001c-.12 1.051-.433 1.773-.922 2.262-.49.49-1.21.801-2.262.923a.447.447 0 0 0 0 .888c1.035.117 1.772.43 2.274.922.499.49.817 1.21.91 2.251a.447.447 0 0 0 .89 0c.09-1.024.407-1.76.91-2.263.502-.502 1.238-.82 2.261-.908a.447.447 0 0 0 .001-.891c-1.04-.093-1.76-.411-2.25-.91-.493-.502-.806-1.24-.923-2.273ZM11.993 3.82a1.15 1.15 0 0 0-2.285-.002c-.312 2.704-1.115 4.559-2.373 5.817-1.258 1.258-3.113 2.06-5.817 2.373a1.15 1.15 0 0 0 .003 2.285c2.658.3 4.555 1.104 5.845 2.37 1.283 1.26 2.1 3.112 2.338 5.789a1.15 1.15 0 0 0 2.292-.003c.227-2.631 1.045-4.525 2.336-5.817 1.292-1.291 3.186-2.109 5.817-2.336a1.15 1.15 0 0 0 .003-2.291c-2.677-.238-4.529-1.056-5.789-2.34-1.266-1.29-2.07-3.186-2.37-5.844Z"></path>
+            </svg>
+            Analyze Content with AI
+        </button>
         <script type="text/javascript">
             jQuery(document).ready(function($) {
                 $('#aico-analyze-button').on('click', function() {
                     var postContent = '<?php echo esc_js( $post->post_content ); ?>';
                     var postId = '<?php echo esc_attr( $post->ID ); ?>';
                     var nonce = '<?php echo esc_attr(wp_create_nonce( 'aico_analyze_content_nonce' )); ?>';
+
+                    // Disable the button
+                    $(this).attr('disabled', true);
 
                     $.ajax({
                         url: ajaxurl,
@@ -112,6 +123,10 @@ class AICO_Metabox {
                         },
                         error: function() {
                             $('#aico-suggestions').html('<p>An error occurred while processing your request.</p>');
+                        },
+                        complete: function() {
+                            // Re-enable the button
+                            $('#aico-analyze-button').attr('disabled', false);
                         }
                     });
                 });
