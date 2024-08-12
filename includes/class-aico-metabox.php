@@ -92,7 +92,8 @@ class AICO_Metabox {
             jQuery(document).ready(function($) {
                 $('#aico-analyze-button').on('click', function() {
                     var postContent = '<?php echo esc_js( $post->post_content ); ?>';
-                    var postId = '<?php echo $post->ID; ?>';
+                    var postId = '<?php echo esc_attr( $post->ID ); ?>';
+                    var nonce = '<?php echo esc_attr(wp_create_nonce( 'aico_analyze_content_nonce' )); ?>';
 
                     $.ajax({
                         url: ajaxurl,
@@ -101,6 +102,7 @@ class AICO_Metabox {
                             action: 'aico_analyze_content',
                             content: postContent,
                             post_id: postId,
+                            _ajax_nonce: nonce,
                         },
                         beforeSend: function() {
                             $('#aico-suggestions').html('<p>Analyzing...</p>');
@@ -125,6 +127,12 @@ class AICO_Metabox {
      * converts the AI suggestions from markdown to HTML, and saves the suggestions to the post meta.
      */
     public function analyze_content() {
+        // Verify nonce
+        if ( ! isset( $_POST['_ajax_nonce'] ) || ! wp_verify_nonce( $_POST['_ajax_nonce'], 'aico_analyze_content_nonce' ) ) {
+            wp_send_json_error( 'Nonce verification failed', 400 );
+            wp_die(); // Stop execution if nonce fails
+        }
+
         if ( isset($_POST['content']) && !empty($_POST['content']) ) {
             $content = sanitize_text_field( wp_unslash( $_POST['content'] ) );
             $post_id = intval( $_POST['post_id'] );

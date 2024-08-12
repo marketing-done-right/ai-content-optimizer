@@ -82,7 +82,7 @@ class AICO_API {
 
         $endpoint = 'https://api.openai.com/v1/chat/completions';
 
-        $body = json_encode([
+        $body = wp_json_encode([
             'model' => $ai_model,
             'messages' => [
                 ['role' => 'system', 'content' => 'You are an expert in SEO, readability analysis, and content engagement strategies. Your task is to provide detailed and actionable recommendations for optimizing web content. You are skilled in analyzing keyword density, readability scores, and content engagement techniques.'],
