@@ -40,12 +40,20 @@ Congratulations! You should now be able to use the AI Content Optimizer Plugin w
 - **Max Tokens:** Set the maximum number of tokens the AI model can generate in a single response.
 - **Rate Limit:** Configure daily limits on API requests to manage costs and avoid exceeding your quota.
 
+![alt text](https://github.com/marketing-done-right/ai-content-optimizer/blob/main/public/images/screenshot-1.png "Settings")
+
 ## Usage
 - Open a post or page in the WordPress editor.
 - Find the __"AI-Powered Content Analysis"__ meta box on the editor screen.
 - Click the __"Analyze Content with AI"__ button.
 - Review the AI-generated suggestions for keyword optimization, readability enhancements, and engagement strategies.
 - Implement the recommended changes to optimize your content.
+
+![alt text](https://github.com/marketing-done-right/ai-content-optimizer/blob/main/public/images/screenshot-2.png "Meta Box")
+
+![alt text](https://github.com/marketing-done-right/ai-content-optimizer/blob/main/public/images/screenshot-3.png "Analyzing")
+
+![alt text](https://github.com/marketing-done-right/ai-content-optimizer/blob/main/public/images/screenshot-4.png "Results")
 
 ## Common Errors
 > [!CAUTION]
