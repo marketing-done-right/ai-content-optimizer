@@ -145,7 +145,7 @@ class AICO_Settings {
             <small>More powerful than GPT-3.5 but slower.</small>
         </label><br><br>
         <label>
-            <input type="radio" name="aico_ai_model" value="gpt-4o-mini" <?php checked( $ai_model, 'gpt-4o-mini' ); ?>>
+            <input type="radio" name="aico_ai_model" value="gpt-4o" <?php checked( $ai_model, 'gpt-4o' ); ?>>
             GPT-4o<br>
             <small>Newest and most advanced model.</small>
         </label>

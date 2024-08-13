@@ -12,7 +12,7 @@ The AI Content Optimizer plugin is a powerful tool that leverages OpenAI's GPT m
 - **Readability Analysis:** Receive readability scores and tailored suggestions to enhance the clarity and flow of your content.
 - **Engagement Strategies:** Discover strategies to increase user engagement, including calls to action, multimedia integration, and more.
 - **Keyword Density Analysis:** Evaluate the density of your keywords and receive actionable advice on optimizing their usage.
-- **Customizable AI Model:** Choose between GPT-3.5 Turbo, GPT-4 Turbo, and GPT-4o models for content analysis.
+- **Customizable AI Model:** Choose between `GPT-3.5 Turbo`, `GPT-4 Turbo`, and `GPT-4o` models for content analysis.
 - **Rate Limit Management:** Set daily limits on API usage to control costs and prevent overuse.
 
 ## Why This Plugin?
@@ -78,7 +78,7 @@ This error indicates you have either run out of credits or have hit your monthly
 
 **Q: What AI models are supported by the plugin?**
 
-**A:** The plugin supports multiple AI models, including GPT-3.5 Turbo, GPT-4 Turbo, and GPT-4o. You can choose the model that best fits your needs from the plugin settings. GPT-3.5 Turbo is faster and suitable for most use cases, while GPT-4o models are more powerful and it's the newest and most advanced model.
+**A:** The plugin supports multiple AI models, including `GPT-3.5 Turbo`, `GPT-4 Turbo`, and `GPT-4o`. You can choose the model that best fits your needs from the plugin settings. `GPT-3.5 Turbo` is faster and suitable for most use cases, while `GPT-4o` models are more powerful and it's the newest and most advanced model.
 
 **Q: What are "tokens," and how do I set the maximum tokens in the plugin?**
 
