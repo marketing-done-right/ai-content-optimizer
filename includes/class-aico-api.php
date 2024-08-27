@@ -64,8 +64,26 @@ class AICO_API {
         $ai_model = get_option( 'aico_ai_model', 'gpt-3.5-turbo' );
         $max_tokens = (int) get_option( 'aico_max_tokens', 700 );
         $rate_limit = get_option( 'aico_rate_limit', 10000 );
+    
+        // Get current day and used requests
+        $today = date( 'Y-m-d' );
+        $last_request_day = get_option( 'aico_last_request_day', '1970-01-01');
         $used_requests = get_option( 'aico_used_requests', 0 );
 
+        // Debugging: Log the current day and last request day
+        error_log( 'Today: ' . $today );
+        error_log( 'Last Request Day: ' . $last_request_day );
+    
+        // Reset used requests if the day has changed
+        if ( $last_request_day !== $today ) {
+            $used_requests = 0;
+            update_option( 'aico_used_requests', 0 );
+            update_option( 'aico_last_request_day', $today );
+    
+            // Debugging: Log the reset action
+            error_log( 'Used requests reset to 0 for a new day.' );
+        }
+    
         if ( ! $api_key ) {
             return 'API key is missing. Please add it in the plugin settings.';
         }
